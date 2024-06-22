@@ -1,4 +1,4 @@
-import terminal, strutils
+import terminal, strutils, sequtils
 import mot_cli
 
 type 
@@ -153,8 +153,11 @@ proc searchCommand*(c: CLI, search_command: string): seq[Command] =
         if search_command in c.commands[i].name.toLower():
             result.add(c.commands[i])
     for i in 0..<c.commands.len:
-        result.add(searchCommand(c.commands[i], search_command))
-
+        var sub_commands = searchCommand(c.commands[i], search_command)
+        for j in 0..<sub_commands.len:
+            sub_commands[j].name = c.commands[i].name & " " & sub_commands[j].name
+        result.add(sub_commands)
+        
 proc addHelper*(ch: CommandHelper, show_options: bool = show_options, show_commands: bool = show_commands): proc (c: Command) =
     return proc (c: Command) =
         if show_options:
